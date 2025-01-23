@@ -7,6 +7,7 @@ import { useForm, Head } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import Editor from '@tinymce/tinymce-vue';
 
+
 defineProps(['chirps']);
 
 const form = useForm({
@@ -20,7 +21,7 @@ const mediaPreview = ref(null); // For showing a preview of the uploaded media
 const handleFileChange = (event) => {
     const file = event.target.files[0];
     form.media = file;
-
+    
     // Create a preview of the uploaded file
     if (file) {
         const reader = new FileReader();
@@ -35,7 +36,7 @@ const handleFileChange = (event) => {
 const submitForm = () => {
     const formData = new FormData();
     formData.append('message', form.message);
-
+    
     if (form.media) {
         formData.append('media', form.media);
     }
@@ -75,15 +76,15 @@ const submitForm = () => {
 
                 <!-- File input for image or video -->
                 <div class="mt-2">
-                    <input
-                        type="file"
+                    <input 
+                        type="file" 
                         accept="image/jpg,video/mp4"
                         @change="handleFileChange"
                         class="block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm"
                     />
                     <InputError :message="form.errors.media" class="mt-2" />
                 </div>
-
+                
                 <!-- Preview media (if any) -->
                 <div v-if="mediaPreview" class="mt-4">
                     <div v-if="form.media.type.startsWith('image')">
@@ -95,7 +96,7 @@ const submitForm = () => {
                 </div>
 
                 <InputError :message="form.errors.message" class="mt-2" />
-                <PrimaryButton class="mt-4">Chirp</PrimaryButton>
+                <PrimaryButton class="mt-4">Chirp</PrimaryButton>                
             </form>
             <div class="mt-6 bg-white shadow-sm rounded-lg divide-y">
                 <Chirp

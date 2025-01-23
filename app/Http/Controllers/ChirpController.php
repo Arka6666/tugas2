@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
+use App\Models\Hashtag;
 
 class ChirpController extends Controller
 {
@@ -36,8 +37,7 @@ class ChirpController extends Controller
     {
         $validated = $request->validate([
             'message' => 'required|string|max:255',
-            'media_url' => 'nullable|file|mimes:jpg,jpeg,png,gif,mp4,avi,mov|max:10240', // Validate for image or video
-
+            'media' => 'nullable|file|mimes:jpg,jpeg,png,gif,mp4,avi,mov|max:10240', // Validate for image or video
         ]);
 
         // Initialize an array for storing chirp data
@@ -45,14 +45,17 @@ class ChirpController extends Controller
             'message' => $validated['message'],
         ];
 
-        // If a media file is uploaded, store it and save the path
+        // If media diupload, akan ditaruh tempat penyimapnan storage
         if ($request->hasFile('media')) {
             $mediaPath = $request->file('media')->store('chirps', 'public');  // Store file in 'public/chirps'
             $data['media_url'] = $mediaPath;  // Save the file path in the database
         }
 
         // Create the chirp with the validated data
-        $request->user()->chirps()->create($data);
+        $chirp = $request->user()->chirps()->create($data);
+
+        // Extract hashtags and associate them with the chirp
+        $this->handleHashtags($validated['message'], $chirp);
 
         return redirect(route('chirps.index'));
     }
@@ -100,5 +103,21 @@ class ChirpController extends Controller
 
         return redirect(route('chirps.index'));
     }
-}
 
+    /**
+     * Handle hashtag extraction and association.
+     *
+     * @param string $message
+     * @param Chirp $chirp
+     */
+    protected function handleHashtags($message, $chirp)
+    {
+        preg_match_all('/#(\w+)/', $message, $matches);
+        $hashtags = $matches[1]; // Extract hashtags from message
+
+        foreach ($hashtags as $tag) {
+            $hashtag = Hashtag::firstOrCreate(['name' => $tag]);
+            $chirp->hashtags()->attach($hashtag); // Associate hashtag with chirp
+        }
+    }
+}

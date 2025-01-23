@@ -9,15 +9,18 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
-    {
-        Schema::create('chirps', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->string('message');
-            $table->timestamps();
-        });
-    }
+
+     public function up(): void
+     {
+         Schema::create('chirps', function (Blueprint $table) {
+             $table->id();
+             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+             $table->string('message');
+             $table->string('media_url')->nullable();
+             $table->timestamps();
+         });
+     }
+
 
     /**
      * Reverse the migrations.
